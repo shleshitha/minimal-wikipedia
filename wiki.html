@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimal Wikipedia</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 1rem;
+        text-align: center;
+    }
+    #container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 1rem;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    label {
+        font-weight: bold;
+    }
+    input[type="text"] {
+        width: 70%;
+        padding: 0.5rem;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    button {
+        padding: 0.5rem 1rem;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #loading {
+        display: none;
+        margin-top: 20px;
+        font-style: italic;
+    }
+    #summary {
+        margin-top: 20px;
+        text-align: left;
+    }
+    #image-container img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+</head>
+<body>
+    <header>
+        <h1>Minimal Wikipedia</h1>
+    </header>
+    <div id="container">
+        <label for="topic">Enter a topic:</label>
+        <input type="text" id="topic" name="topic" autocomplete="off" onkeypress="handleKeyPress(event)">
+        <button onclick="fetchData()">Fetch Data</button>
+        <button onclick="clearInput()">Clear</button>
+        <div id="loading">Loading...</div>
+        <div id="summary"></div>
+        <div id="image-container"></div>
+    </div>
+
+    <script>
+        function fetchData() {
+            var topic = document.getElementById("topic").value.trim();
+            if (topic === "") {
+                alert("Please enter a topic.");
+                return;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(topic));
+            xhr.onloadstart = function () {
+                document.getElementById("loading").style.display = "block";
+            };
+            xhr.onloadend = function () {
+                document.getElementById("loading").style.display = "none";
+            };
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.type === "standard") {
+                        document.getElementById("summary").innerHTML = data.extract_html;
+                        if (data.originalimage) {
+                            var imageUrl = data.originalimage.source;
+                            var image = document.createElement("img");
+                            image.src = imageUrl;
+                            image.alt = "Image not found";
+                            document.getElementById("image-container").innerHTML = "";
+                            document.getElementById("image-container").appendChild(image);
+                        } else {
+                            document.getElementById("image-container").innerHTML = "<p>No image found.</p>";
+                        }
+                    } else {
+                        document.getElementById("summary").innerHTML = "<p>Page not found.</p>";
+                        document.getElementById("image-container").innerHTML = "";
+                    }
+                } else {
+                    document.getElementById("summary").innerHTML = "<p>Error fetching data. Please try again later.</p>";
+                    document.getElementById("image-container").innerHTML = "";
+                }
+            };
+            xhr.onerror = function () {
+                document.getElementById("summary").innerHTML = "<p>Network error. Please check your connection and try again.</p>";
+                document.getElementById("image-container").innerHTML = "";
+            };
+            xhr.send();
+        }
+
+        function clearInput() {
+            document.getElementById("topic").value = "";
+            document.getElementById("summary").innerHTML = "";
+            document.getElementById("image-container").innerHTML = "";
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                fetchData();
+            }
+        }
+    </script>
+</body>
+</html>
