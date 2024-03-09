@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimal Wikipedia</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+    header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .container {
+        display: flex;
+        justify-content: space-around;
+        margin: 0 auto;
+        max-width: 1200px;
+    }
+    .language-container {
+        flex: 1;
+        padding: 1rem;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .language-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    #loading {
+        display: none;
+        margin-top: 20px;
+    }
+    #summary, #summary-te {
+        margin-top: 20px;
+        text-align: left;
+    }
+    #image-container img, #image-container-te img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+</head>
+<body>
+    <header>
+        <h1>Minimal Wikipedia</h1>
+    </header>
+    <div class="container">
+        <div class="language-container">
+            <h2>English</h2>
+            <div>
+                <label for="topic">Enter a topic:</label>
+                <input type="text" id="topic" name="topic" autocomplete="off" onkeypress="handleKeyPress(event, 'en')">
+                <button onclick="fetchData('en')">Fetch Data</button>
+                <div id="loading">Loading...</div>
+                <div id="summary"></div>
+                <div id="image-container"></div>
+            </div>
+        </div>
+        <div class="language-container">
+            <h2>తెలుగు</h2>
+            <div>
+                <label for="topic-te">విషయాన్ని నమోదు చేయండి:</label>
+                <input type="text" id="topic-te" name="topic-te" autocomplete="off" onkeypress="handleKeyPress(event, 'te')">
+                <button onclick="fetchData('te')">డేటా నుండి తీసుకొను</button>
+                <div id="loading-te">లోడ్ అవుతోంది...</div>
+                <div id="summary-te"></div>
+                <div id="image-container-te"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fetchData(language) {
+            var topic;
+            var topicInput;
+            var summaryElement;
+            var imageContainerElement;
+            var loadingElement;
+            if (language === 'en') {
+                topic = document.getElementById("topic").value.trim();
+                topicInput = document.getElementById("topic");
+                summaryElement = document.getElementById("summary");
+                imageContainerElement = document.getElementById("image-container");
+                loadingElement = document.getElementById("loading");
+            } else if (language === 'te') {
+                topic = document.getElementById("topic-te").value.trim();
+                topicInput = document.getElementById("topic-te");
+                summaryElement = document.getElementById("summary-te");
+                imageContainerElement = document.getElementById("image-container-te");
+                loadingElement = document.getElementById("loading-te");
+            }
+            if (topic === "") {
+                alert("Please enter a topic.");
+                return;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "https://" + language + ".wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(topic));
+            xhr.onloadstart = function () {
+                loadingElement.style.display = "block";
+            };
+            xhr.onloadend = function () {
+                loadingElement.style.display = "none";
+            };
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.type === "standard") {
+                        summaryElement.innerHTML = data.extract_html;
+                        if (data.originalimage) {
+                            var imageUrl = data.originalimage.source;
+                            var image = document.createElement("img");
+                            image.src = imageUrl;
+                            image.alt = "Image not found";
+                            imageContainerElement.innerHTML = "";
+                            imageContainerElement.appendChild(image);
+                        } else {
+                            imageContainerElement.innerHTML = "<p>No image found.</p>";
+                        }
+                    } else {
+                        summaryElement.innerHTML = "<p>Page not found.</p>";
+                        imageContainerElement.innerHTML = "";
+                    }
+                } else {
+                    summaryElement.innerHTML = "<p>Error fetching data. Please try again later.</p>";
+                    imageContainerElement.innerHTML = "";
+                }
+            };
+            xhr.onerror = function () {
+                summaryElement.innerHTML = "<p>Network error. Please check your connection and try again.</p>";
+                imageContainerElement.innerHTML = "";
+            };
+            xhr.send();
+        }
+
+        function handleKeyPress(event, language) {
+            if (event.key === "Enter") {
+                fetchData(language);
+            }
+        }
+    </script>
+</body>
+</html>
