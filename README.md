@@ -7,8 +7,8 @@ Minimal Wikipedia is a streamlined and simplified version of the renowned online
 - javascript
 
 ## Features
--Clear button
--Loading indicator
--Handle network errors
--Keyboard accessibility
--Responsive design
+- Clear button
+- Loading indicator
+- Handle network errors
+- Keyboard accessibility
+- Responsive design
