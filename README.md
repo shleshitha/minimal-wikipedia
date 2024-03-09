@@ -12,4 +12,4 @@ Minimal Wikipedia is a streamlined and simplified version of the renowned online
 - Handle network errors
 - Keyboard accessibility
 - Responsive design
-- *Parallel Translations*
+- **Parallel Translations**
