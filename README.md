@@ -13,3 +13,8 @@ Minimal Wikipedia is a streamlined and simplified version of the renowned online
 - Keyboard accessibility
 - Responsive design
 - **Parallel Translations**
+
+## Instructions
+
+*index.html* : Runs v1 of the minimal wikipedia search engine. This version fetches a minimal description of the search.
+*backup.html*: Runs v2 of the minimal wikipedia search engine. This version, in an additional sidepanel displays the same information translated in Telugu. The language can be changed by changing the language variable in the html file.
