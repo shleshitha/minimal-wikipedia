@@ -5,6 +5,7 @@ Minimal Wikipedia is a streamlined and simplified version of the renowned online
 - html
 - css
 - javascript
+- Wikipedia API (English and Telugu Wikis)
 
 ## Features
 - Clear button
